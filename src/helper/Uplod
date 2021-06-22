@@ -1,4 +1,4 @@
-import React, {useState, useEffect} from 'react';
+import React, {useState,useEffect} from 'react';
 import {
   Text,
   View,
@@ -14,69 +14,29 @@ import Logout from '../../../assets/Images/logout.png';
 import goBack from '../../../assets/Images/goBack.png';
 import ImagePicker from 'react-native-image-crop-picker';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import {GSM_LOADING_APP_API} from '@env';
-
-import axios from 'axios';
 const index = ({navigation, route}) => {
-  const [JWTToken, setJWTToken] = useState('');
   const [UploadFiles, setUploadFiles] = useState({
-    Empty_Container_Scale: null,
-    Empty_Container: null,
-    Material_on_ground: null,
-    Four_Full_container: null,
-    Two_Full_container: null,
-    Full_Loeded_container: null,
-    One_Door_Closed: null,
-    Two_Door_Closed: null,
-    Loded_Scale_Photo: null,
-    Seal_Photo: null,
-    Truck_Ticker_form_Shipping: null,
+    Empty_Container_Scale: '',
+    Empty_Container: '',
+    Material_on_ground: '',
+    Four_Full_container: '',
+    Two_Full_container: '',
+    Full_Loeded_container: '',
+    One_Door_Closed: '',
+    Two_Door_Closed: '',
+    Loded_Scale_Photo: '',
+    Seal_Photo: '',
+    Truck_Ticker_form_Shipping: '',
   });
-
-  const {id} = route.params;
-  React.useEffect(async () => {
-    const token = await AsyncStorage.getItem('token');
-    setJWTToken(token);
-  }, []);
-
-  useEffect(() => {
+ useEffect(() => {
     console.log(UploadFiles);
   }, [UploadFiles]);
-
-  const FileUploadHandler = async () => {
-    var formdata = new FormData();
-    formdata.append('booking_id', id);
-    formdata.append('EmptyContainerScale', UploadFiles.Empty_Container_Scale);
-    formdata.append('EmptyContainer', UploadFiles.Empty_Container);
-    formdata.append('MaterialOnGround', UploadFiles.Material_on_ground);
-    formdata.append('1_4_FullContainer', UploadFiles.Four_Full_container);
-    formdata.append('1_2_FullContainer', UploadFiles.Two_Full_container);
-    formdata.append('FullLoadedContainer', UploadFiles.Full_Loeded_container);
-    formdata.append('OneDoorClosed', UploadFiles.One_Door_Closed);
-    formdata.append('TwoDoorClosed', UploadFiles.Two_Door_Closed);
-    formdata.append('LoadedScale', UploadFiles.Loded_Scale_Photo);
-    formdata.append('Seal', UploadFiles.Seal_Photo);
-    formdata.append(
-      'TruckTickerFromShiping',
-      UploadFiles.Truck_Ticker_form_Shipping,
-    );
-
-    axios({
-      method: 'post',
-      url: `${GSM_LOADING_APP_API}/bookings/mediaUpload`,
-      data: formdata,
-      headers: {
-        Authorization: `${JWTToken}`,
-        'Content-Type': 'multipart/form-data',
-      },
-    })
-      .then(function (response) {
-        console.log(response);
-      })
-      .catch(function (response) {
-        console.log(response);
-      });
-  };
+  const {id} = route.params;
+  React.useEffect(async()=>{
+    const token = await AsyncStorage.getItem("token")
+    alert(token);
+  },[])
+ 
 
   const [visible, setVisible] = React.useState(false);
   const [SelectId, setSelectId] = useState('');
@@ -155,13 +115,13 @@ const index = ({navigation, route}) => {
         }}>
         <TouchableOpacity
           onPress={() => {
-            navigation.goBack();
+            navigation.navigate('Booking');
           }}>
           <Image source={goBack} style={Styles.Logout} />
         </TouchableOpacity>
         <TouchableOpacity
-          onPress={async () => {
-            await AsyncStorage.removeItem('token');
+          onPress={async() => {
+            await AsyncStorage.removeItem("token")
             navigation.navigate('Login');
           }}>
           <Image source={Logout} style={Styles.Logout} />
@@ -183,7 +143,34 @@ const index = ({navigation, route}) => {
   const List = ({name, id}) => {
     return (
       <View style={Styles.item}>
-        {UploadFiles[id]?.path === undefined ? (
+        <ModalPop visible={visible}>
+          <View style={{alignItems: 'center'}}>
+            <View style={Styles.header}>
+              <Text style={Styles.ModelHeader}> Add Photo </Text>
+              <TouchableOpacity onPress={() => setVisible(false)}>
+                <Image
+                  source={require('../../../assets/Images/x.png')}
+                  style={{height: 25, width: 25}}
+                />
+              </TouchableOpacity>
+            </View>
+          </View>
+          <View style={{marginTop: 20, alignItems: 'flex-start'}}>
+            <TouchableOpacity
+              onPress={() => {
+                SelectFromCamara();
+              }}>
+              <Text style={Styles.ModalBtn}>Take photo</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              onPress={() => {
+                ChooseFromGlary();
+              }}>
+              <Text style={Styles.ModalBtn}>Choose from Gallery</Text>
+            </TouchableOpacity>
+          </View>
+        </ModalPop>
+        {UploadFiles[id].path === undefined ? (
           <TouchableOpacity
             onPress={() => {
               setVisible(true);
@@ -196,12 +183,13 @@ const index = ({navigation, route}) => {
             onPress={() => {
               setUploadFiles({
                 ...UploadFiles,
-                [id]: '',
-              });
+                [id]:""
+              })
             }}>
-            <Text style={Styles.Button2}>Cancel</Text>
+            <Text style={Styles.Button2}>Cancle</Text>
           </TouchableOpacity>
         )}
+
         <Text style={Styles.itemText}>{name}</Text>
       </View>
     );
@@ -234,7 +222,7 @@ const index = ({navigation, route}) => {
         <TouchableOpacity
           style={Styles.UploadButton}
           onPress={() => {
-            FileUploadHandler();
+            alert('file uploaded');
           }}>
           <Text style={Styles.ButtonText}>Upload Files</Text>
         </TouchableOpacity>
@@ -247,33 +235,6 @@ const index = ({navigation, route}) => {
       <SafeAreaView style={Styles.container}>
         {renderHeaderComponent()}
         {renderHeadingComponent()}
-        <ModalPop visible={visible}>
-          <View style={{alignItems: 'center'}}>
-            <View style={Styles.header}>
-              <Text style={Styles.ModelHeader}> Add Photo </Text>
-              <TouchableOpacity onPress={() => setVisible(false)}>
-                <Image
-                  source={require('../../../assets/Images/x.png')}
-                  style={{height: 25, width: 25}}
-                />
-              </TouchableOpacity>
-            </View>
-          </View>
-          <View style={{marginTop: 20, alignItems: 'flex-start'}}>
-            <TouchableOpacity
-              onPress={() => {
-                SelectFromCamara();
-              }}>
-              <Text style={Styles.ModalBtn}>Take photo</Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              onPress={() => {
-                ChooseFromGlary();
-              }}>
-              <Text style={Styles.ModalBtn}>Choose from Gallery</Text>
-            </TouchableOpacity>
-          </View>
-        </ModalPop>
         {renderListComponent()}
         {renderUploadBtnComponent()}
       </SafeAreaView>

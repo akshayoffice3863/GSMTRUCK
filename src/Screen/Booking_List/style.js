@@ -16,6 +16,7 @@ export default StyleSheet.create({
   Logout: {
     resizeMode: 'cover',
     marginHorizontal: 15,
+    tintColor: COLORS.BLUE
   },
   item: {
     marginVertical: 5,
@@ -40,5 +41,10 @@ export default StyleSheet.create({
 
   title: {
     fontSize: 16,
+  },
+  Indicator: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    flex: 1,
   },
 });

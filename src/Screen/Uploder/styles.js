@@ -16,6 +16,7 @@ export default StyleSheet.create({
   Logout: {
     resizeMode: 'cover',
     marginHorizontal: 15,
+    tintColor: COLORS.BLUE
   },
   item: {
     marginVertical: 5,
@@ -38,7 +39,7 @@ export default StyleSheet.create({
     color: COLORS.WHITE,
   },
   Button2: {
-    backgroundColor: "red",
+    backgroundColor: "#e53935",
     paddingHorizontal: 40,
     marginRight: 12,
     paddingVertical: 5,
@@ -75,7 +76,7 @@ export default StyleSheet.create({
   },
   modalBackGround: {
     flex: 1,
-    backgroundColor: 'rgba(0,0,0,0.01)',
+    backgroundColor: 'rgba(0,0,0,0.5)',
     justifyContent: 'center',
     alignItems: 'center',
   },

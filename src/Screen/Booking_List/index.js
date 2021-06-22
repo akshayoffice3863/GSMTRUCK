@@ -6,69 +6,74 @@ import {
   Image,
   TouchableOpacity,
   FlatList,
+  ActivityIndicator,
 } from 'react-native';
 import Styles from './style';
 import Logout from '../../../assets/Images/logout.png';
-import dummyData from '../../helper/Data';
-
+import {GetAllBookings} from '../../Api/Api';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 const index = ({navigation}) => {
-  // COMPONENT
-  const renderHeaderComponent = () => {
-    return (
+  const [Data, setData] = useState({});
+  useEffect(() => {
+    DataHandler();
+  }, []);
+
+  const DataHandler = async () => {
+    const Data = await GetAllBookings();
+    if (Data?.success) {
+      setData(Data?.data);
+    } else {
+      alert(
+        'Requested Records not Found... or Please Check Your Internet Conation',
+      );
+    }
+  };
+
+  return (
+    <SafeAreaView style={Styles.container}>
       <View style={Styles.Header}>
         <TouchableOpacity
-          onPress={() => {
+          onPress={async () => {
+            await AsyncStorage.removeItem('token');
             navigation.navigate('Login');
           }}
           style={{alignSelf: 'flex-end'}}>
           <Image source={Logout} style={Styles.Logout} />
         </TouchableOpacity>
       </View>
-    );
-  };
-  const renderHeadingComponent = () => {
-    return (
       <View style={[Styles.Header, Styles.HeaderColor]}>
         <Text style={{alignSelf: 'center', color: 'white', fontSize: 20}}>
           List Of Booking ID
         </Text>
       </View>
-    );
-  };
-
-  const renderListComponent = () => {
-    return (
-      <FlatList
-        style={{marginVertical: 15}}
-        data={dummyData.Data}
-        renderItem={({item}) => {
-          return (
-            <View style={Styles.item}>
-              <Text style={Styles.itemText}>{item.title}</Text>
-              <TouchableOpacity
-                onPress={() => {
-                  navigation.navigate('Upload', {id: item.id});
-                }}>
-                <Text style={Styles.Button}>Upload</Text>
-              </TouchableOpacity>
-            </View>
-          );
-        }}
-        keyExtractor={item => item.id}
-      />
-    );
-  };
-
-  const renderMainView = () => {
-    return (
-      <SafeAreaView style={Styles.container}>
-        {renderHeaderComponent()}
-        {renderHeadingComponent()}
-        {renderListComponent()}
-      </SafeAreaView>
-    );
-  };
-  return renderMainView();
+      {Data?.length > 0 ? (
+        <FlatList
+          style={{marginVertical: 15}}
+          data={Data}
+          renderItem={({item}) => {
+            return (
+              <View style={Styles.item}>
+                <Text style={Styles.itemText}>{item.booking_no}</Text>
+                <TouchableOpacity
+                  onPress={() => {
+                    navigation.navigate('Upload', {id: item.id});
+                  }}>
+                  <Text style={Styles.Button}>Upload</Text>
+                </TouchableOpacity>
+              </View>
+            );
+          }}
+          keyExtractor={item => item.id}
+        />
+      ) : (
+        <ActivityIndicator
+          size="large"
+          color="#6774df"
+          style={Styles.Indicator}
+        />
+      )}
+    </SafeAreaView>
+  );
 };
 
 export default index;

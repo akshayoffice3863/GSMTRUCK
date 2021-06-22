@@ -1,11 +1,13 @@
 import * as React from 'react';
 import {NavigationContainer} from '@react-navigation/native';
+
 import {createStackNavigator} from '@react-navigation/stack';
 //IMPORT PATH
 import Splash from "./src/Screen/SplashScreen";
-import Login from "./src/Screen/Login";
+import Login from "./src/Screen/Login/Login";
 import Booking from "./src/Screen/Booking_List";
-import Upload from "./src/Screen/Uploder"
+import Upload from "./src/Screen/Uploder";
+import 'react-native-gesture-handler';
 const Stack = createStackNavigator();
 
 function App() {
