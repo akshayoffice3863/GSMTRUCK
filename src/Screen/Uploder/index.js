@@ -8,15 +8,15 @@ import {
   ScrollView,
   Modal,
   Animated,
+  
 } from 'react-native';
 import Styles from './styles';
 import Logout from '../../../assets/Images/logout.png';
 import goBack from '../../../assets/Images/goBack.png';
 import ImagePicker from 'react-native-image-crop-picker';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import {GSM_LOADING_APP_API} from '@env';
+import {MediaUpload} from '../../Api/Api';
 
-import axios from 'axios';
 const index = ({navigation, route}) => {
   const [JWTToken, setJWTToken] = useState('');
   const [UploadFiles, setUploadFiles] = useState({
@@ -34,14 +34,14 @@ const index = ({navigation, route}) => {
   });
 
   const {id} = route.params;
-  React.useEffect(async () => {
-    const token = await AsyncStorage.getItem('token');
-    setJWTToken(token);
+  React.useEffect(() => {
+    GetToken();
   }, []);
 
-  useEffect(() => {
-    console.log(UploadFiles);
-  }, [UploadFiles]);
+  const GetToken = async () => {
+    const token = await AsyncStorage.getItem('token');
+    setJWTToken(token);
+  };
 
   const FileUploadHandler = async () => {
     var formdata = new FormData();
@@ -60,22 +60,13 @@ const index = ({navigation, route}) => {
       'TruckTickerFromShiping',
       UploadFiles.Truck_Ticker_form_Shipping,
     );
+    const Data = await MediaUpload(formdata, JWTToken);
+    if (Data.success) {
+      alert(Data.message);
 
-    axios({
-      method: 'post',
-      url: `${GSM_LOADING_APP_API}/bookings/mediaUpload`,
-      data: formdata,
-      headers: {
-        Authorization: `${JWTToken}`,
-        'Content-Type': 'multipart/form-data',
-      },
-    })
-      .then(function (response) {
-        console.log(response);
-      })
-      .catch(function (response) {
-        console.log(response);
-      });
+    } else {
+      alert(Data.message);
+    }
   };
 
   const [visible, setVisible] = React.useState(false);
@@ -121,25 +112,54 @@ const index = ({navigation, route}) => {
       width: 300,
       height: 300,
       cropping: true,
-    }).then(image => {
+    }).then(ImageBase => {
       setVisible(false);
+
+      let obj = {
+        ...ImageBase,
+        fileName: `${SelectId}.${ImageBase.path.substring(
+          ImageBase.path.lastIndexOf('.') + 1,
+        )}`,
+        name: `${SelectId}.${ImageBase.path.substring(
+          ImageBase.path.lastIndexOf('.') + 1,
+        )}`,
+        size: ImageBase.size,
+        type: ImageBase.mime,
+        uri: ImageBase.path,
+      };
+      delete obj.cropRect;
+      delete obj.mime;
       setUploadFiles({
         ...UploadFiles,
-        [SelectId]: image,
+        [SelectId]: obj,
       });
     });
   };
 
   const SelectFromCamara = () => {
     ImagePicker.openCamera({
-      width: 300,
-      height: 300,
-      cropping: true,
-    }).then(image => {
+      // width: 300,
+      // height: 300,
+      cropping: false,
+    }).then(ImageBase => {
       setVisible(false);
+      let obj = {
+        ...ImageBase,
+        fileName: `${SelectId}.${ImageBase.path.substring(
+          ImageBase.path.lastIndexOf('.') + 1,
+        )}`,
+        name: `${SelectId}.${ImageBase.path.substring(
+          ImageBase.path.lastIndexOf('.') + 1,
+        )}`,
+        size: ImageBase.size,
+        type: ImageBase.mime,
+        uri: ImageBase.path,
+      };
+      delete obj.cropRect;
+      delete obj.mime;
       setUploadFiles({
         ...UploadFiles,
-        [SelectId]: image,
+        [SelectId]: obj,
       });
     });
   };
@@ -183,7 +203,7 @@ const index = ({navigation, route}) => {
   const List = ({name, id}) => {
     return (
       <View style={Styles.item}>
-        {UploadFiles[id]?.path === undefined ? (
+        {UploadFiles[id] == null ? (
           <TouchableOpacity
             onPress={() => {
               setVisible(true);
@@ -196,7 +216,7 @@ const index = ({navigation, route}) => {
             onPress={() => {
               setUploadFiles({
                 ...UploadFiles,
-                [id]: '',
+                [id]: null,
               });
             }}>
             <Text style={Styles.Button2}>Cancel</Text>
